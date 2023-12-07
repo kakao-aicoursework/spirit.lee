@@ -8,6 +8,7 @@ from tkinter import scrolledtext
 from dotenv import load_dotenv
 import tkinter.filedialog as filedialog
 
+import llm
 import vector_db
 
 load_dotenv()
@@ -82,15 +83,6 @@ def send_message(message_log, functions, gpt_model="gpt-3.5-turbo", temperature=
 def main():
     # vector DB initialize
     db = vector_db.init_db("project_data_카카오톡채널.txt")
-    message_log = [
-        {
-            "role": "system",
-            "content": '''
-            You are a DJ assistant who creates playlists. Your user will be Korean, so communicate in Korean, but you must not translate artists' names and song titles into Korean.
-                - At first, suggest songs to make a playlist based on users' request. The playlist must contains the title, artist, and release year of each song in a list format. You must ask the user if they want to save the playlist as follow: "이 플레이리스트를 CSV로 저장하시겠습니까?"
-            '''
-        }
-    ]
 
     # functions = [
     #     {
@@ -147,17 +139,18 @@ def main():
             window.destroy()
             return
 
-        message_log.append({"role": "user", "content": user_input})
+        # message_log.append({"role": "user", "content": user_input})
         conversation.config(state=tk.NORMAL)  # 이동
         conversation.insert(tk.END, f"You: {user_input}\n", "user")  # 이동
         thinking_popup = show_popup_message(window, "처리중...")
         window.update_idletasks()
         # '생각 중...' 팝업 창이 반드시 화면에 나타나도록 강제로 설정하기
-        response = vector_db.get_relevant_documents(db, 6, user_input)
+        docs = vector_db.get_relevant_documents(db, 3, user_input)
+        response = llm.query_by_langchain(docs, user_input)
         # response = send_message(message_log, functions)
         thinking_popup.destroy()
 
-        message_log.append({"role": "assistant", "content": response})
+        # message_log.append({"role": "assistant", "content": response})
 
         # 태그를 추가한 부분(1)
         conversation.insert(tk.END, f"gpt assistant: {response}\n", "assistant")
