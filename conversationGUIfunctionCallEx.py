@@ -153,7 +153,7 @@ def main():
         thinking_popup = show_popup_message(window, "처리중...")
         window.update_idletasks()
         # '생각 중...' 팝업 창이 반드시 화면에 나타나도록 강제로 설정하기
-        response = db.get_relevant_documents(user_input)
+        response = vector_db.get_relevant_documents(db, 6, user_input)
         # response = send_message(message_log, functions)
         thinking_popup.destroy()
 
