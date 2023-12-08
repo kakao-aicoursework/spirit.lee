@@ -1,3 +1,0 @@
-# README
-
-by spirit.lee
