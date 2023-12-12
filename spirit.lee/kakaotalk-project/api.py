@@ -13,8 +13,8 @@ app = FastAPI()
 
 ## vector DB에 txt파일 embedding
 def db_init():
-    # files = ["project_data_카카오소셜.txt", "project_data_카카오싱크.txt", "project_data_카카오톡채널.txt"]
-    files = ["project_data_카카오싱크.txt"]
+    files = ["project_data_카카오소셜.txt", "project_data_카카오싱크.txt", "project_data_카카오톡채널.txt"]
+    # files = ["project_data_카카오싱크.txt"]
     docs = vector_db.init(files)
     return docs
 
@@ -50,8 +50,7 @@ async def sample3(req: ChatbotRequest):
 
 
 @app.post("/callback")
-def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
-    background_tasks.add_task(callback_handler, req, app.docs)
+async def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
     print("callback handler executed: request payload: ", req)
     out = {
         "version": "2.0",
@@ -60,4 +59,5 @@ def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
             "text": "생각하고 있는 중이에요😘 \n15초 정도 소요될 거 같아요 기다려 주실래요?!"
         }
     }
+    background_tasks.add_task(callback_handler, req, app.docs)
     return out
