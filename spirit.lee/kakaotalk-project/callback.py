@@ -41,7 +41,7 @@ def query_by_langchain(docs, query) -> str:
 
 
 
-async def callback_handler(request: ChatbotRequest, docs) -> dict:
+def callback_handler(request: ChatbotRequest, docs) -> dict:
     # client = OpenAI(
     #     # This is the default and can be omitted
     #     api_key=os.environ.get("OPENAI_API_KEY"),
@@ -76,10 +76,16 @@ async def callback_handler(request: ChatbotRequest, docs) -> dict:
         }
     }
 
-    if url:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, json=payload) as resp:
-                await resp.json()
+    # if url:
+    #     async with aiohttp.ClientSession() as session:
+    #         async with session.post(url=url, json=payload) as resp:
+    #             await resp.json()
+    try:
+        headers = { 'Content-Type': 'application/json' }
+        res = requests.post(url, headers=headers, data=json.dumps(payload))
+        ic(res.text)
+    except Exception as e:
+        ic(e)
 
 # def callback_handler2(request: ChatbotRequest):
 #     url = request.userRequest.callbackUrl
