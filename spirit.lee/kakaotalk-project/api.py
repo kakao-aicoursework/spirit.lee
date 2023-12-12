@@ -50,7 +50,7 @@ async def sample3(req: ChatbotRequest):
 
 
 @app.post("/callback")
-async def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
+def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
     print("callback handler executed: request payload: ", req)
     out = {
         "version": "2.0",
