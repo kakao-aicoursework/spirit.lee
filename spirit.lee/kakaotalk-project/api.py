@@ -13,7 +13,8 @@ app = FastAPI()
 
 ## vector DB에 txt파일 embedding
 def db_init():
-    files = ["project_data_카카오소셜.txt", "project_data_카카오싱크.txt", "project_data_카카오톡채널.txt"]
+    # files = ["project_data_카카오소셜.txt", "project_data_카카오싱크.txt", "project_data_카카오톡채널.txt"]
+    files = ["project_data_카카오싱크.txt"]
     docs = vector_db.init(files)
     return docs
 
