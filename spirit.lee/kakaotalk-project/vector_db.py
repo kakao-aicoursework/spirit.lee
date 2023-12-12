@@ -11,7 +11,7 @@ def init(files: list):
     for file_name in files:
         with open(file_name) as f:
             text += f.read()
-    docs = embeddings(text, 500)
+    docs = embeddings(text, 1024)
     return docs
 
 
