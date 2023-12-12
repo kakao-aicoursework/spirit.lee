@@ -42,10 +42,10 @@ def query_by_langchain(docs, query) -> str:
 
 
 async def callback_handler(request: ChatbotRequest, docs) -> dict:
-    client = OpenAI(
-        # This is the default and can be omitted
-        api_key=os.environ.get("OPENAI_API_KEY"),
-    )
+    # client = OpenAI(
+    #     # This is the default and can be omitted
+    #     api_key=os.environ.get("OPENAI_API_KEY"),
+    # )
 
     print(request)
     query = request.userRequest.utterance
@@ -60,8 +60,6 @@ async def callback_handler(request: ChatbotRequest, docs) -> dict:
     # )
     # output_text = completion.choices[0].message.content
     print(output_text)
-
-    time.sleep(1.0)
 
     url = request.userRequest.callbackUrl
 
