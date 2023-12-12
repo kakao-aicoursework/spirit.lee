@@ -31,7 +31,7 @@ def query_by_langchain(docs, query) -> str:
         template=prompt_template,
         input_variables=['context','question']
     )
-    chain = load_qa_chain(OpenAI(temperature=0, max_tokens=4092), chain_type="stuff", prompt=PROMPT, verbose=True)
+    chain = load_qa_chain(OpenAI(temperature=0), chain_type="stuff", prompt=PROMPT, verbose=True)
     result = chain.run(input_documents=docs, question=query)
 
     return result
