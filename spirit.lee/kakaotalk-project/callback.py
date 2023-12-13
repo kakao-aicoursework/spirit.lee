@@ -2,7 +2,7 @@
 
 from dto import ChatbotRequest
 from samples import simple_text_sample
-from openai import OpenAI
+from langchain.chat_models import ChatOpenAI
 import aiohttp
 import time
 import os
@@ -18,7 +18,7 @@ from icecream import ic
 load_dotenv()
 
 def query_by_langchain(docs, query) -> str:
-
+    llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
     prompt_template = """
         Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
@@ -31,7 +31,7 @@ def query_by_langchain(docs, query) -> str:
         template=prompt_template,
         input_variables=['context','question']
     )
-    chain = load_qa_chain(OpenAI(temperature=0), chain_type="stuff", prompt=PROMPT, verbose=True)
+    chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
     result = chain.run(input_documents=docs, question=query)
 
     return result
