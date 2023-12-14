@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import langchain.chains.qa_with_sources
 
 from dto import ChatbotRequest
 from samples import simple_text_sample
@@ -8,7 +9,7 @@ import time
 import os
 from dotenv import load_dotenv
 from langchain.chains.question_answering import load_qa_chain
-from langchain.llms import OpenAI
+from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.prompts import PromptTemplate
 import vector_db
 import requests
@@ -22,16 +23,18 @@ def query_by_langchain(docs, query) -> str:
     prompt_template = """
         Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
-        {context}
+        {summaries}
 
         Question: {question}
         Answer in Korean:
     """
     PROMPT = PromptTemplate(
         template=prompt_template,
-        input_variables=['context','question']
+        input_variables=['summaries','question']
     )
-    chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
+    # summaries 변수가 반드시 있어야 하는 형태의 함수. (에러로그 보고 알 수 있음. 공식문서나 api docs에 전혀 안 써있다.)
+    chain = load_qa_with_sources_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
+    # chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
     result = chain.run(input_documents=docs, question=query)
 
     return result
@@ -49,14 +52,7 @@ def callback_handler(request: ChatbotRequest, docs) -> dict:
     query = request.userRequest.utterance
     related_docs = vector_db.get_relevant_documents(docs, 3, query)
     output_text = query_by_langchain(related_docs, query)
-    # completion = client.chat.completions.create(
-    #     model="gpt-3.5-turbo",
-    #     messages=[
-    #         {"role": "user", "content": request.userRequest.utterance},
-    #         {"role": "assistant", "content": SYSTEM_MSG},
-    #     ]
-    # )
-    # output_text = completion.choices[0].message.content
+
     print(output_text)
 
     url = request.userRequest.callbackUrl
@@ -74,36 +70,9 @@ def callback_handler(request: ChatbotRequest, docs) -> dict:
         }
     }
 
-    # if url:
-    #     async with aiohttp.ClientSession() as session:
-    #         async with session.post(url=url, json=payload) as resp:
-    #             await resp.json()
     try:
         headers = { 'Content-Type': 'application/json' }
         res = requests.post(url, headers=headers, data=json.dumps(payload))
         ic(res.text)
     except Exception as e:
         ic(e)
-
-# def callback_handler2(request: ChatbotRequest):
-#     url = request.userRequest.callbackUrl
-#     ic(url)
-#     payload = {
-#         "version": "2.0",
-#         "template": {
-#             "outputs": [
-#                 {
-#                     "simpleText": {
-#                         "text": "콜백 응답~"
-#                     }
-#                 }
-#             ]
-#         }
-#     }
-
-#     try:
-#         headers = { 'Content-Type': 'application/json' }
-#         res = requests.post(url, headers=headers, data=json.dumps(payload))
-#         ic(res.text)
-#     except Exception as e:
-#         ic(e)
