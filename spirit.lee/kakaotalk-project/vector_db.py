@@ -6,11 +6,9 @@ from langchain.prompts import PromptTemplate
 from langchain.indexes.vectorstore import VectorstoreIndexCreator
 
 
-def init(files: list):
-    text = ""
-    for file_name in files:
-        with open(file_name) as f:
-            text += f.read()
+def init(file_name: str):
+    with open(file_name) as f:
+        text = f.read()
     docs = embeddings(text, 1000)
     return docs
 
