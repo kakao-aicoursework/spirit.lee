@@ -4,7 +4,7 @@ import langchain.chains.qa_with_sources
 from dto import ChatbotRequest
 from samples import simple_text_sample
 from langchain.chat_models import ChatOpenAI
-import aiohttp
+import llm
 import time
 import os
 from dotenv import load_dotenv
@@ -40,6 +40,13 @@ def query_by_langchain(docs, query) -> str:
     return result
     # return chain.run(input_documents=docs, question=query, return_only_outputs=True)
 
+def query_multi_prompt_langchain(docs, query):
+    llm_model = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
+    prompt_infos = llm.init_prompt()
+    chain = llm.set_multi_prompt_chain(llm_model, prompt_infos, docs)
+    result = chain.run(query)
+    print(result)
+    return result
 
 
 def callback_handler(request: ChatbotRequest, docs) -> dict:
@@ -50,8 +57,9 @@ def callback_handler(request: ChatbotRequest, docs) -> dict:
 
     print(request)
     query = request.userRequest.utterance
-    related_docs = vector_db.get_relevant_documents(docs, 3, query)
-    output_text = query_by_langchain(related_docs, query)
+    # related_docs = vector_db.get_relevant_documents(docs, 3, query)
+    # output_text = query_by_langchain(related_docs, query)
+    output_text = query_multi_prompt_langchain(docs, query)
 
     print(output_text)
 

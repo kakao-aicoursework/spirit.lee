@@ -6,17 +6,22 @@ from dto import ChatbotRequest
 from samples import simple_text_sample, basic_card_sample, commerce_card_sample
 from callback import callback_handler
 import vector_db
+import os
+from pathlib import Path
+import glob
 import threading
 
 app = FastAPI()
 
 
 ## vector DB에 txt파일 embedding
-def db_init():
-    files = ["project_data_카카오소셜.txt", "project_data_카카오싱크.txt", "project_data_카카오톡채널.txt"]
-    # files = ["project_data_카카오싱크.txt"]
-    docs = vector_db.init(files)
-    return docs
+def db_init() -> dict:
+    files = glob.glob("./docs/*.txt")
+    db_dict = dict()
+    for name in files:
+        print("creating vector db based on {}...".format(name))
+        db_dict[Path(os.path.basename(name)).stem] = vector_db.init(name)
+    return db_dict
 
 
 app.docs = db_init()
