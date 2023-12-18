@@ -58,7 +58,8 @@ def query_multi_prompt_langchain(app, query, user_id):
         context = vector_db.get_relevant_documents(app.docs[intent], 3, query)
         answer = next_chain.run({
             "context": context,
-            "input": query
+            "input": query,
+            "chat_history": llm.get_chat_history(user_id),
         })
         result = {"answer": answer}
         llm.log_user_message(history_file, query)

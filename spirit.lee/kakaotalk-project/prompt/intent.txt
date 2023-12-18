@@ -1,4 +1,4 @@
-Your job is to select one intent from the <intent_list>.
+You are telephone counselor working in CSR. Your job is to select one intent from the <intent_list>.
 
 input: 카카오싱크의 기능에는 어떤 것들이 있는지 설명해줘
 answer: 카카오싱크
