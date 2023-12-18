@@ -18,27 +18,27 @@ from icecream import ic
 
 load_dotenv()
 
-def query_by_langchain(docs, query) -> str:
-    llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
-    prompt_template = """
-        Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
-        {summaries}
-
-        Question: {question}
-        Answer in Korean:
-    """
-    PROMPT = PromptTemplate(
-        template=prompt_template,
-        input_variables=['summaries','question']
-    )
-    # summaries 변수가 반드시 있어야 하는 형태의 함수. (에러로그 보고 알 수 있음. 공식문서나 api docs에 전혀 안 써있다.)
-    chain = load_qa_with_sources_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
-    # chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
-    result = chain.run(input_documents=docs, question=query)
-
-    return result
-    # return chain.run(input_documents=docs, question=query, return_only_outputs=True)
+# def query_by_langchain(docs, query) -> str:
+#     llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
+#     prompt_template = """
+#         Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+#
+#         {summaries}
+#
+#         Question: {question}
+#         Answer in Korean:
+#     """
+#     PROMPT = PromptTemplate(
+#         template=prompt_template,
+#         input_variables=['summaries','question']
+#     )
+#     # summaries 변수가 반드시 있어야 하는 형태의 함수. (에러로그 보고 알 수 있음. 공식문서나 api docs에 전혀 안 써있다.)
+#     chain = load_qa_with_sources_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
+#     # chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
+#     result = chain.run(input_documents=docs, question=query)
+#
+#     return result
+#     # return chain.run(input_documents=docs, question=query, return_only_outputs=True)
 
 def query_multi_prompt_langchain(docs, query):
     llm_model = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
@@ -46,8 +46,6 @@ def query_multi_prompt_langchain(docs, query):
     ## intent classification
     ### Q. 이 정도 small task에서 굳이 intent 분류에 api 한 번, 해당 분류에 따른 작업처리로 api 한 번 호출해야 할 필요가 있을까
     parse_intent_chain = llm.create_chain(llm_model, prompt_infos['intent']['prompt_template'], 'intent')
-
-
 
     intent = parse_intent_chain.run({
         "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in prompt_infos.items()]),
