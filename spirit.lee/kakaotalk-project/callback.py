@@ -53,35 +53,17 @@ def query_multi_prompt_langchain(docs, query):
         "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in prompt_infos.items()]),
         "input": query
     })
-
-    if intent == "카카오소셜":
-        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
-        context = vector_db.get_relevant_documents(docs[intent], 3, query)
-        answer = next_chain.run({
-            "context": context,
-            "input": query
-        })
-        result = {"answer": answer}
-
-    elif intent == "카카오톡채널":
-        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
-        context = vector_db.get_relevant_documents(docs[intent], 3, query)
-        answer = next_chain.run({
-            "context": context,
-            "input": query
-        })
-        result = {"answer": answer}
-
-    elif intent == "카카오톡채널":
-        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
-        context = vector_db.get_relevant_documents(docs[intent], 3, query)
-        answer = next_chain.run({
-            "context": context,
-            "input": query
-        })
-        result = {"answer": answer}
-    else:
+    if intent not in ("카카오소셜", "카카오톡채널", "카카오톡싱크"):
         result = {"answer": "not classified"}
+    else:
+        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
+        context = vector_db.get_relevant_documents(docs[intent], 3, query)
+        answer = next_chain.run({
+            "context": context,
+            "input": query
+        })
+        result = {"answer": answer}
+
     # chain = llm.set_multi_prompt_chain(llm_model, prompt_infos, docs)
     # result = chain.run(query)
     # print(result)
