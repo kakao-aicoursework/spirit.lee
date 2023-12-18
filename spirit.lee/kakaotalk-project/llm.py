@@ -24,9 +24,11 @@ def init_prompt() -> dict:
     for file_path in glob.glob("./prompt/*.txt"):
         file_name = Path(file_path).stem
         prompt_text = read_prompt_from_file(file_path)
+        description = ""
+        # "Good for answering questions associated with '{}' topics.".format(file_name)
         prompt_info = {
             "name": file_name,
-            "description": "Good for answering questions associated with '{}' topics.".format(file_name),
+            "description": description,
             "prompt_template": prompt_text
         }
         prompt_infos[file_name] = prompt_info

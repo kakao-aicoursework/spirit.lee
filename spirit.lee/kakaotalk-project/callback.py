@@ -47,7 +47,8 @@ def query_multi_prompt_langchain(app, query):
         "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in app.prompt_infos.items()]),
         "input": query
     })
-    if intent not in ("카카오소셜", "카카오톡채널", "카카오톡싱크"):
+    print(intent)
+    if intent not in ("카카오소셜", "카카오톡채널", "카카오싱크"):
         result = {"answer": "not classified"}
     else:
         next_chain = app.next_chains[intent]
@@ -74,7 +75,7 @@ def callback_handler(request: ChatbotRequest, app) -> dict:
     query = request.userRequest.utterance
     # related_docs = vector_db.get_relevant_documents(docs, 3, query)
     # output_text = query_by_langchain(related_docs, query)
-    output_text = query_multi_prompt_langchain(app.docs, query)
+    output_text = query_multi_prompt_langchain(app, query)
 
     print(output_text['answer'])
 
