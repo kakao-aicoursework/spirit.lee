@@ -43,9 +43,50 @@ def query_by_langchain(docs, query) -> str:
 def query_multi_prompt_langchain(docs, query):
     llm_model = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
     prompt_infos = llm.init_prompt()
-    chain = llm.set_multi_prompt_chain(llm_model, prompt_infos, docs)
-    result = chain.run(query)
-    print(result)
+
+
+    ## intent classification
+    ### Q. 이 정도 small task에서 굳이 intent 분류에 api 한 번, 해당 분류에 따른 작업처리로 api 한 번 호출해야 할 필요가 있을까
+    parse_intent_chain = llm.create_chain(llm_model, prompt_infos['intent']['prompt_template'], 'intent')
+
+
+
+    intent = parse_intent_chain.run({
+        "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in prompt_infos.items()]),
+        "input": query
+    })
+
+    if intent == "카카오소셜":
+        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
+        context = vector_db.get_relevant_documents(docs[intent], 3, query)
+        answer = next_chain.run({
+            "context": context,
+            "input": query
+        })
+        result = {"answer": answer}
+
+    elif intent == "카카오톡채널":
+        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
+        context = vector_db.get_relevant_documents(docs[intent], 3, query)
+        answer = next_chain.run({
+            "context": context,
+            "input": query
+        })
+        result = {"answer": answer}
+
+    elif intent == "카카오톡채널":
+        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
+        context = vector_db.get_relevant_documents(docs[intent], 3, query)
+        answer = next_chain.run({
+            "context": context,
+            "input": query
+        })
+        result = {"answer": answer}
+    else:
+        result = {"answer": "not classified"}
+    # chain = llm.set_multi_prompt_chain(llm_model, prompt_infos, docs)
+    # result = chain.run(query)
+    # print(result)
     return result
 
 
@@ -61,7 +102,7 @@ def callback_handler(request: ChatbotRequest, docs) -> dict:
     # output_text = query_by_langchain(related_docs, query)
     output_text = query_multi_prompt_langchain(docs, query)
 
-    print(output_text)
+    print(output_text['answer'])
 
     url = request.userRequest.callbackUrl
 
@@ -71,7 +112,7 @@ def callback_handler(request: ChatbotRequest, docs) -> dict:
             "outputs": [
                 {
                     "simpleText": {
-                        "text": output_text
+                        "text": output_text['answer']
                     }
                 }
             ]
