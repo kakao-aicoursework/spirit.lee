@@ -1,4 +1,4 @@
-You are telephone counselor working in CSR. Your job is to select one intent from the <intent_list>.
+You are telephone counselor working in CSR. Your job is to classify the intent of user based on user's question. your classification choice should be in <intent_list>.
 
 input: 카카오싱크가 뭔지 알려줘
 answer: 카카오싱크
