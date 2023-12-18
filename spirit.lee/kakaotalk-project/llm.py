@@ -8,7 +8,7 @@ from langchain.vectorstores import Chroma
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains import RetrievalQA
-from langchain.memory import ConversationBufferMemory, FileChatMessageHistory
+from langchain.memory import ConversationBufferWindowMemory, FileChatMessageHistory
 import os
 import glob
 from pathlib import Path
@@ -108,7 +108,8 @@ def log_bot_message(history: FileChatMessageHistory, bot_message: str):
 
 def get_chat_history(conversation_id: str):
     history = load_conversation_history(conversation_id)
-    memory = ConversationBufferMemory(
+    memory = ConversationBufferWindowMemory(
+        k=3,
         memory_key="chat_history",
         input_key="input",
         chat_memory=history,
