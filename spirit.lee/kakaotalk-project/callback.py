@@ -40,22 +40,18 @@ load_dotenv()
 #     return result
 #     # return chain.run(input_documents=docs, question=query, return_only_outputs=True)
 
-def query_multi_prompt_langchain(docs, query):
-    llm_model = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
-    prompt_infos = llm.init_prompt()
+def query_multi_prompt_langchain(app, query):
     ## intent classification
     ### Q. 이 정도 small task에서 굳이 intent 분류에 api 한 번, 해당 분류에 따른 작업처리로 api 한 번 호출해야 할 필요가 있을까
-    parse_intent_chain = llm.create_chain(llm_model, prompt_infos['intent']['prompt_template'], 'intent')
-
-    intent = parse_intent_chain.run({
-        "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in prompt_infos.items()]),
+    intent = app.parse_intent_chain.run({
+        "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in app.prompt_infos.items()]),
         "input": query
     })
     if intent not in ("카카오소셜", "카카오톡채널", "카카오톡싱크"):
         result = {"answer": "not classified"}
     else:
-        next_chain = llm.create_chain(llm_model, prompt_infos[intent]['prompt_template'], output_key="answer")
-        context = vector_db.get_relevant_documents(docs[intent], 3, query)
+        next_chain = app.next_chains[intent]
+        context = vector_db.get_relevant_documents(app.docs[intent], 3, query)
         answer = next_chain.run({
             "context": context,
             "input": query
@@ -68,7 +64,7 @@ def query_multi_prompt_langchain(docs, query):
     return result
 
 
-def callback_handler(request: ChatbotRequest, docs) -> dict:
+def callback_handler(request: ChatbotRequest, app) -> dict:
     # client = OpenAI(
     #     # This is the default and can be omitted
     #     api_key=os.environ.get("OPENAI_API_KEY"),
@@ -78,7 +74,7 @@ def callback_handler(request: ChatbotRequest, docs) -> dict:
     query = request.userRequest.utterance
     # related_docs = vector_db.get_relevant_documents(docs, 3, query)
     # output_text = query_by_langchain(related_docs, query)
-    output_text = query_multi_prompt_langchain(docs, query)
+    output_text = query_multi_prompt_langchain(app.docs, query)
 
     print(output_text['answer'])
 

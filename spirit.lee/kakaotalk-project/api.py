@@ -9,7 +9,8 @@ import vector_db
 import os
 from pathlib import Path
 import glob
-import threading
+from langchain.chat_models import ChatOpenAI
+import llm
 
 app = FastAPI()
 
@@ -23,9 +24,13 @@ def db_init() -> dict:
         db_dict[Path(os.path.basename(name)).stem] = vector_db.init(name)
     return db_dict
 
-
+app.prompt_infos = llm.init_prompt()
 app.docs = db_init()
-
+app.llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
+app.parse_intent_chain = llm.create_chain(app.llm, app.prompt_infos['intent']['prompt_template'], 'intent')
+app.next_chains = dict()
+for name in ("카카오소셜", "카카오톡채널", "카카오톡싱크"):
+    app.next_chains[name] = llm.create_chain(app.llm, app.prompt_infos[name]['prompt_template'], output_key="answer")
 
 @app.get("/")
 async def home():
@@ -65,5 +70,5 @@ def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
         }
     }
     # callback_handler(req, app.docs)
-    background_tasks.add_task(callback_handler, req, app.docs)
+    background_tasks.add_task(callback_handler, req, app)
     return out
