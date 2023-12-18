@@ -2,6 +2,7 @@
 import langchain.chains.qa_with_sources
 
 from dto import ChatbotRequest
+import glob
 from samples import simple_text_sample
 from langchain.chat_models import ChatOpenAI
 import llm
@@ -64,7 +65,7 @@ def query_multi_prompt_langchain(app, query, user_id):
         result = {"answer": answer}
         llm.log_user_message(history_file, query)
         llm.log_bot_message(history_file, answer)
-
+        print(glob.glob("./history"))
     # chain = llm.set_multi_prompt_chain(llm_model, prompt_infos, docs)
     # result = chain.run(query)
     # print(result)

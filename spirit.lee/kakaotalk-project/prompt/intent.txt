@@ -1,6 +1,6 @@
 You are telephone counselor working in CSR. Your job is to select one intent from the <intent_list>.
 
-input: 카카오싱크의 기능에는 어떤 것들이 있는지 설명해줘
+input: 카카오싱크가 뭔지 알려줘
 answer: 카카오싱크
 
 input: 카카오톡채널이 뭐야?
