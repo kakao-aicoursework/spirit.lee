@@ -43,8 +43,6 @@ def query_by_langchain(docs, query) -> str:
 def query_multi_prompt_langchain(docs, query):
     llm_model = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
     prompt_infos = llm.init_prompt()
-
-
     ## intent classification
     ### Q. 이 정도 small task에서 굳이 intent 분류에 api 한 번, 해당 분류에 따른 작업처리로 api 한 번 호출해야 할 필요가 있을까
     parse_intent_chain = llm.create_chain(llm_model, prompt_infos['intent']['prompt_template'], 'intent')
