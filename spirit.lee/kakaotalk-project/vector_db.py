@@ -9,13 +9,13 @@ from langchain.indexes.vectorstore import VectorstoreIndexCreator
 def init(file_name: str):
     with open(file_name) as f:
         text = f.read()
-    docs = embeddings(text, 1000)
+    docs = embeddings(text, 500, 100)
     return docs
 
 
 ## embedding 완료된 chroma DB를 리턴
-def embeddings(text: str, chunk_size: int):
-    splitter = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=0)
+def embeddings(text: str, chunk_size: int, chunk_overlap: int):
+    splitter = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     splitted_text = splitter.split_text(text)
 
     embeddings = OpenAIEmbeddings()

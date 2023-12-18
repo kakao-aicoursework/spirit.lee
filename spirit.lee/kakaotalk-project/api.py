@@ -64,5 +64,6 @@ def callback1(req: ChatbotRequest, background_tasks: BackgroundTasks):
             "text": "생각하고 있는 중이에요😘 \n15초 정도 소요될 거 같아요 기다려 주실래요?!"
         }
     }
+    # callback_handler(req, app.docs)
     background_tasks.add_task(callback_handler, req, app.docs)
     return out
