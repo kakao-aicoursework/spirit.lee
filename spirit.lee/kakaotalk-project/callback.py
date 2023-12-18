@@ -40,12 +40,15 @@ load_dotenv()
 #     return result
 #     # return chain.run(input_documents=docs, question=query, return_only_outputs=True)
 
-def query_multi_prompt_langchain(app, query):
+def query_multi_prompt_langchain(app, query, user_id):
+    history_file = llm.load_conversation_history(user_id)
+
     ## intent classification
     ### Q. 이 정도 small task에서 굳이 intent 분류에 api 한 번, 해당 분류에 따른 작업처리로 api 한 번 호출해야 할 필요가 있을까
     intent = app.parse_intent_chain.run({
         "context": "\n".join([f"{v['name']}: {v['description']}" if k != 'intent' else "" for k, v in app.prompt_infos.items()]),
-        "input": query
+        "input": query,
+        "chat_history": llm.get_chat_history(user_id),
     })
     print(intent)
     if intent not in ("카카오소셜", "카카오톡채널", "카카오싱크"):
@@ -58,6 +61,8 @@ def query_multi_prompt_langchain(app, query):
             "input": query
         })
         result = {"answer": answer}
+        llm.log_user_message(history_file, query)
+        llm.log_bot_message(history_file, answer)
 
     # chain = llm.set_multi_prompt_chain(llm_model, prompt_infos, docs)
     # result = chain.run(query)
@@ -72,10 +77,11 @@ def callback_handler(request: ChatbotRequest, app) -> dict:
     # )
 
     print(request)
+    user_id = request.userRequest.user.id
     query = request.userRequest.utterance
     # related_docs = vector_db.get_relevant_documents(docs, 3, query)
     # output_text = query_by_langchain(related_docs, query)
-    output_text = query_multi_prompt_langchain(app, query)
+    output_text = query_multi_prompt_langchain(app, query, user_id)
 
     print(output_text['answer'])
 

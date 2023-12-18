@@ -8,6 +8,7 @@ from langchain.vectorstores import Chroma
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains import RetrievalQA
+from langchain.memory import ConversationBufferMemory, FileChatMessageHistory
 import os
 import glob
 from pathlib import Path
@@ -92,3 +93,25 @@ def create_chain(llm, prompt_info, output_key):
         verbose=True,
     )
 
+def load_conversation_history(conversation_id: str):
+    file_path = os.path.join("./history", f"{conversation_id}.json")
+    return FileChatMessageHistory(file_path)
+
+
+def log_user_message(history: FileChatMessageHistory, user_message: str):
+    history.add_user_message(user_message)
+
+
+def log_bot_message(history: FileChatMessageHistory, bot_message: str):
+    history.add_ai_message(bot_message)
+
+
+def get_chat_history(conversation_id: str):
+    history = load_conversation_history(conversation_id)
+    memory = ConversationBufferMemory(
+        memory_key="chat_history",
+        input_key="input",
+        chat_memory=history,
+    )
+
+    return memory.buffer
